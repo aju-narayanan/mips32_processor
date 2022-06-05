@@ -68,18 +68,18 @@ module pipe_mips32(clk1,clk2
     bneqz,beqz   :id_ex_type  <=#2branch;
     hlt   :id_ex_type  <=#2halt;
     default   :id_ex_type  <=#2halt;    
-   endcase
-   end
+    endcase
+    end
    
-   always@(posedge clk1)
-   if(halted==0)
-   begin
-   ex_mem_type<=#2id_ex_type;
-   ex_mem_ir<=#2id_ex_ir;
-   taken_branch<=#2 0;
+    always@(posedge clk1)
+    if(halted==0)
+    begin
+    ex_mem_type<=#2id_ex_type;
+    ex_mem_ir<=#2id_ex_ir;
+    taken_branch<=#2 0;
    
-   case(id_ex_type)
-   rr_alu: begin
+    case(id_ex_type)
+    rr_alu: begin
     case(id_ex_ir[31:26])
     add:ex_mem_aluout <= #2 id_ex_a+id_ex_b;
     sub:ex_mem_aluout <= #2 id_ex_a-id_ex_b;
@@ -112,27 +112,27 @@ module pipe_mips32(clk1,clk2
 
 
 
-always@(posedge clk2)
-if(halted==0)
-begin
-mem_wb_type <=#2 ex_mem_type;
-mem_wb_ir <=#2 ex_mem_ir;
+   always@(posedge clk2)
+   if(halted==0)
+   begin
+   mem_wb_type <=#2 ex_mem_type;
+   mem_wb_ir <=#2 ex_mem_ir;
 
-case(ex_mem_type)
-rr_alu,rm_alu : mem_wb_aluout <=#2 ex_mem_aluout;
-load : mem_wb_lmd <=#2 Mem[ex_mem_aluout];
-store : if(taken_branch==0) Mem[ex_mem_aluout] <= #2 ex_mem_b;
-endcase
-end
+   case(ex_mem_type)
+   rr_alu,rm_alu : mem_wb_aluout <=#2 ex_mem_aluout;
+   load : mem_wb_lmd <=#2 Mem[ex_mem_aluout];
+   store : if(taken_branch==0) Mem[ex_mem_aluout] <= #2 ex_mem_b;
+   endcase
+   end
 
-always@(posedge clk1)
-begin
-if(taken_branch==0)
-case (mem_wb_type)
-rr_alu : Reg[mem_wb_ir[15:11]] <= #2 mem_wb_aluout;
-rm_alu : Reg[mem_wb_ir[20:16]] <= #2 mem_wb_aluout;
-load : Reg[mem_wb_ir[20:16]]    <= #2 mem_wb_lmd;
-halt : halted <= #2 1'b1;
-endcase
-end
-endmodule
+   always@(posedge clk1)
+   begin
+   if(taken_branch==0)
+   case (mem_wb_type)
+   rr_alu : Reg[mem_wb_ir[15:11]] <= #2 mem_wb_aluout;
+   rm_alu : Reg[mem_wb_ir[20:16]] <= #2 mem_wb_aluout;
+   load : Reg[mem_wb_ir[20:16]]    <= #2 mem_wb_lmd;
+   halt : halted <= #2 1'b1;
+   endcase
+   end
+   endmodule
