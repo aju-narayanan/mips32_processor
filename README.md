@@ -1,5 +1,5 @@
 # mips32_processor
-module pipe_mips32(clk1,clk2
+    module pipe_mips32(clk1,clk2
 
     );
     input clk1,clk2;
